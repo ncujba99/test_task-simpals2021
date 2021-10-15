@@ -40,8 +40,6 @@ services:
     depends_on:
       mongo:
         condition: service_started
-      redis:
-        condition: service_started
       elasticsearch:
         condition: service_healthy
     ports:

@@ -42,7 +42,6 @@ async def sync_adverts():
             advert_details = get_advert_details(username=const.api_login, password=const.api_password, id=advert["id"])
             for key in advert_details:
                 advert[key] = advert_details[key]
-            print(advert)
             await mongo_db.adverts.update_one({"id": advert["id"]}, {"$set": advert}, upsert=True)
             await es.index(index="adverts", id=advert["id"], body=advert)
         await asyncio.sleep(10)

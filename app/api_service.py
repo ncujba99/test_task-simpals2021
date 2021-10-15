@@ -15,7 +15,7 @@ class background_service():
 
         @app.listener('before_server_start')
         async def setup_db(app, loop):
-            # self.mongo = motor.motor_asyncio.AsyncIOMotorClient(const.mongo).adminka
+            # self.mongo = motor.motor_asyncio.AsyncIOMotorClient(const.mongo)
             # self.redis = redis.StrictRedis(host=const.redis, port=6379, db=0)
             self.es = AsyncElasticsearch(const.elastic)
 
@@ -41,7 +41,7 @@ class background_service():
             args = json.loads(request.body.decode())
             pagination = {"from": int(args["pagination"]["from"]),
                           "size": int(args["pagination"]["size"])}
-            search_query = args["search_query"]
+            search_query = str(args["search_query"])
         except:
             return response.json({"status": "wrong_args"})
 
@@ -58,6 +58,14 @@ class background_service():
 
         elastic_response = await self.es.search(body=elastic_request, index="adverts")
 
+        # for key in elastic_response:
+        #     print(key)
+        # print("_____")
+        #
+        # for key in  elastic_response["hits"]:
+        #     print(key)
+
         results = [x["_source"] for x in elastic_response["hits"]["hits"]]
 
-        return response.json({"results":results})
+        return response.json({"results": results,
+                              "total_results": elastic_response["hits"]["total"]["value"]})
